@@ -1,0 +1,23 @@
+version: '3'
+services:
+  api:
+    build: .
+    ports:
+      - 4000:4000
+    environment:
+      - PG_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+    command: bash -c "yarn tsc && yarn migrate && yarn serve"
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=jubelio
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d
+  redis:
+    image: redis:6
