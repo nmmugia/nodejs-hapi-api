@@ -2,17 +2,15 @@
 
 import Hapi from "@hapi/hapi";
 import { Server } from "@hapi/hapi";
+import auth from "./routers/auth";
 
-export let server: Server;
+const server = Hapi.server({
+    port: process.env.PORT || 4000,
+    host: '0.0.0.0'
+});
 
 export const init = async function(): Promise<Server> {
-    server = Hapi.server({
-        port: process.env.PORT || 4000,
-        host: '0.0.0.0'
-    });
-
-    // Routes will go here
-
+    server.route(auth);
     return server;
 };
 
