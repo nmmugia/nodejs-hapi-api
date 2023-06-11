@@ -10,10 +10,10 @@ const getAll = async (page: number, per_page: number): Promise<adjustmentTransac
   }
 }
 
-// Get adjustment transaction by SKU
-const getBySku = async (sku: string): Promise<adjustmentTransaction | null> => {
+// Get adjustment transaction by Id
+const getById = async (Id: number): Promise<adjustmentTransaction | null> => {
   try {
-    return await adjustmentTransactionRepositorySQL.getAdjustmentTransactionBySku(sku);
+    return await adjustmentTransactionRepositorySQL.getAdjustmentTransactionById(Id);
   } catch (error) {
     throw error;
   }
@@ -48,7 +48,7 @@ const deleteById = async (id: bigint): Promise<void> => {
 
 export default {
   getAll,
-  getBySku,
+  getById,
   create,
   update,
   deleteById

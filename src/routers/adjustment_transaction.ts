@@ -1,25 +1,25 @@
-import {getAll, getBySku, create, update, deleteByID} from "../controllers/adjustment_transaction"
+import {getAll, getById, create, update, deleteByID} from "../controllers/adjustment_transaction"
 
 const product: any[] = [
     {
         method: 'GET',
-        path: '/adjustment-transaction',
+        path: '/adjustment-transactions',
         handler:  getAll
     },{
         method: 'GET',
-        path: '/adjustment-transaction/{sku}',
-        handler:  getBySku
+        path: '/adjustment-transactions/{id}',
+        handler:  getById
     },{
         method: 'POST',
-        path: '/adjustment-transaction',
+        path: '/adjustment-transactions',
         handler:  create
     },{
         method: 'PUT',
-        path: '/adjustment-transaction',
+        path: '/adjustment-transactions',
         handler:  update
     },{
         method: 'DELETE',
-        path: '/adjustment-transaction',
+        path: '/adjustment-transactions',
         handler:  deleteByID
     }
 ];

@@ -15,10 +15,10 @@ export const getAll = async (request: hapi.Request, response: hapi.ResponseToolk
   }
 };
 
-export const getBySku = async (request: hapi.Request, response: hapi.ResponseToolkit) => {
+export const getById = async (request: hapi.Request, response: hapi.ResponseToolkit) => {
   try {
-    const sku: string = request.params.sku;
-    const adjustmentTransaction = await adjustmentTransactionUsecase.getBySku(sku);
+    const id: number = request.params.id;
+    const adjustmentTransaction = await adjustmentTransactionUsecase.getById(id);
     if (!adjustmentTransaction) {
       return response.response({ message: 'Adjustment transaction not found' }).code(404);
     }

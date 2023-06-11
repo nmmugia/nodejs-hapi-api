@@ -7,7 +7,7 @@ const product: any[] = [
         handler:  getAll
     },{
         method: 'GET',
-        path: '/product/{id}',
+        path: '/products/{id}',
         handler:  getById
     },{
         method: 'POST',

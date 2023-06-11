@@ -13,10 +13,10 @@ export async function getAllAdjustmentTransaction(page: number, per_page: number
   }
   
   // Get adjustment transaction by ID
-  export async function getAdjustmentTransactionBySku(sku: string): Promise<adjustmentTransaction | null> {
+  export async function getAdjustmentTransactionById(id: number): Promise<adjustmentTransaction | null> {
     try {
       const query = 'SELECT * FROM adjustment_transaction WHERE id = $1';
-      const results = await pool.query(query, [sku]);
+      const results = await pool.query(query, [id]);
       const result = results.rows[0] as adjustmentTransaction;
       return result || null;
     } catch (error) {
@@ -179,4 +179,4 @@ export async function deleteAdjustmentTransactionById(id: bigint): Promise<void>
   }
 }
 
-export default {getAllAdjustmentTransaction, getAdjustmentTransactionBySku, createAdjustmentTransaction, updateAdjustmentTransaction, deleteAdjustmentTransactionById}
+export default {getAllAdjustmentTransaction, getAdjustmentTransactionById, createAdjustmentTransaction, updateAdjustmentTransaction, deleteAdjustmentTransactionById}
