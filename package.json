@@ -8,7 +8,6 @@
   "scripts": {
     "tsc": "tsc --watch -p .",
     "serve": "nodemon -e js -w dist dist/main.js",
-    "dev": "run-p dev:*",
     "migrate": "tsc && knex migrate:latest"
   },
   "dependencies": {

@@ -14,6 +14,19 @@ This repository contains the implementation for simple e-commerce API based on [
 docker-compose up
 ```
 
+## Scripts
+### compile in watch mode
+```
+yarn tsc
+```
+### serve the backend app
+```
+yarn serve
+```
+### compile and migrate the database migration
+```
+yarn migrate
+```
 
 ## License
 
