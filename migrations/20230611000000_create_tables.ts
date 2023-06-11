@@ -7,16 +7,13 @@ export async function up(knex: Knex): Promise<void> {
     table.string('created_by').defaultTo(knex.raw('CURRENT_USER'));
     table.timestamp('updated_at').defaultTo(knex.fn.now());
     table.string('updated_by').defaultTo(knex.raw('CURRENT_USER'));
-    table.timestamp('deleted_at');
-    table.string('deleted_by');
-
   }
 
   await knex.schema.createTable('product', (table) => {
     table.bigIncrements('id').primary();
     table.string('sku').notNullable();
     table.string('name').notNullable();
-    table.string('price');
+    table.decimal('price');
     table.text('image');
     table.text('description');
     addAuthorColumns(table);
@@ -31,7 +28,7 @@ export async function up(knex: Knex): Promise<void> {
       .foreign('sku')
       .references('sku')
       .inTable('product')
-      .onDelete('CASCADE');
+      .onDelete('cascade');
     table.integer('qty').notNullable();
     table.decimal('amount').notNullable();
     table.text('description');
@@ -44,7 +41,8 @@ export async function up(knex: Knex): Promise<void> {
     table
       .foreign('product_id')
       .references('id')
-      .inTable('product');
+      .inTable('product')
+      .onDelete('cascade');
     table.bigInteger('transaction_id').notNullable();
     table
       .foreign('transaction_id')
