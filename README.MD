@@ -5,6 +5,9 @@ This repository contains the implementation for simple e-commerce API based on [
 ## ERD
 ![erd](https://github.com/nmmugia/nodejs-hapi-api/blob/master/public/erd.png?raw=true)
 
+# Structure
+![structure](https://github.com/nmmugia/nodejs-hapi-api/blob/master/public/structure.png?raw=true)
+
 ## Installation using docker (recommended)
 
 ```bash
