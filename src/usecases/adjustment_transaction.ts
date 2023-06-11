@@ -2,16 +2,16 @@ import { adjustmentTransaction, createAdjustmentTransaction, updateAdjustmentTra
 import adjustmentTransactionRepositorySQL from '../repositories/sql/adjustment_transaction';
 
 // Get all adjustment transactions
-const getAll = async (): Promise<adjustmentTransaction[]> => {
+const getAll = async (page: number, per_page: number): Promise<adjustmentTransaction[]> => {
   try {
-    return await adjustmentTransactionRepositorySQL.getAllAdjustmentTransactions();
+    return await adjustmentTransactionRepositorySQL.getAllAdjustmentTransaction(page, per_page);
   } catch (error) {
     throw error;
   }
 }
 
 // Get adjustment transaction by SKU
-const getBySku = async (sku: string): Promise<adjustmentTransaction | null> {
+const getBySku = async (sku: string): Promise<adjustmentTransaction | null> => {
   try {
     return await adjustmentTransactionRepositorySQL.getAdjustmentTransactionBySku(sku);
   } catch (error) {
@@ -46,3 +46,10 @@ const deleteById = async (id: bigint): Promise<void> => {
   }
 }
 
+export default {
+  getAll,
+  getBySku,
+  create,
+  update,
+  deleteById
+}

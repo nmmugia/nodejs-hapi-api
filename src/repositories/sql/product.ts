@@ -3,10 +3,10 @@ import { product, createProduct, updateProduct } from '../../models/product';
 import {pool} from './connection'
 
 // Get all products
-export async function getAllProducts(): Promise<product[]> {
+export async function getAllProducts(page: number, per_page: number): Promise<product[]> {
   try {
-    const query = 'SELECT * FROM product';
-    const result = await pool.query(query);
+    const query = 'SELECT * FROM product LIMIT $1 OFFSET $2';
+    const result = await pool.query(query, [per_page, (page-1)*per_page]);
     return result.rows as product[];
   } catch (error) {
     throw error;

@@ -4,7 +4,9 @@ import adjustmentTransactionUsecase from '../usecases/adjustment_transaction';
 
 export const getAll = async (request: hapi.Request, response: hapi.ResponseToolkit) => {
   try {
-    const adjustmentTransactions = await adjustmentTransactionUsecase.getAll();
+    const page: number = request.query.page <= '0' ? 1 : +request.query.page;
+    const per_page: number = request.query.page <= '0' ? 10 : +request.query.page;
+    const adjustmentTransactions = await adjustmentTransactionUsecase.getAll(page, per_page);
     return response.response(adjustmentTransactions).code(200);
   } catch (error: any) {
     request.log('error', error);

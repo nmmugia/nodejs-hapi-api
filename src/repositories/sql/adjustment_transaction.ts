@@ -3,10 +3,10 @@ import { adjustmentTransaction, createAdjustmentTransaction, updateAdjustmentTra
 import {pool} from './connection'
 
 // Get all adjustment transaction
-export async function getAllAdjustmentTransaction(): Promise<adjustmentTransaction[]> {
+export async function getAllAdjustmentTransaction(page: number, per_page: number): Promise<adjustmentTransaction[]> {
     try {
-      const query = 'SELECT * FROM adjustment_transaction';
-      const result = await pool.query(query);
+      const query = 'SELECT * FROM adjustment_transaction LIMIT $1 OFFSET $2';
+      const result = await pool.query(query, [per_page, (page-1)*per_page]);
       return result.rows as adjustmentTransaction[];
     } catch (error) {
       throw error;

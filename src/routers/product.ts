@@ -1,30 +1,30 @@
-import productController from "../controllers/product"
+import {getAll, getById, create, update, deleteById, sync} from "../controllers/product"
 
 const product: any[] = [
     {
         method: 'GET',
         path: '/products',
-        handler:  productController.getAll
+        handler:  getAll
     },{
         method: 'GET',
         path: '/product/{id}',
-        handler:  productController.getById
+        handler:  getById
     },{
         method: 'POST',
         path: '/products',
-        handler:  productController.create
+        handler:  create
     },{
         method: 'PUT',
         path: '/products',
-        handler:  productController.update
+        handler:  update
     },{
         method: 'DELETE',
         path: '/products',
-        handler:  productController.delete
+        handler:  deleteById
     },{
         method: 'POST',
         path: '/products/sync',
-        handler:  productController.sync
+        handler:  sync
     }
 ];
 

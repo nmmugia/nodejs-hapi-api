@@ -4,7 +4,7 @@ import {fetchAllProducts} from '../repositories/woo/product';
 
 export const getAll = async (page: number, per_page: number) => {
   try {
-    const products = await productRepositoriesSQL.getAll(page, per_page);
+    const products = await productRepositoriesSQL.getAllProducts(page, per_page);
     return products;
   } catch (error) {
     throw error;
@@ -13,7 +13,7 @@ export const getAll = async (page: number, per_page: number) => {
 
 export const getById = async (id: bigint) => {
   try {
-    const product = await productRepositoriesSQL.getById(id);
+    const product = await productRepositoriesSQL.getProductById(id);
     return product;
   } catch (error) {
     throw error;
@@ -22,7 +22,7 @@ export const getById = async (id: bigint) => {
 
 export const create = async (product: createProduct) => {
   try {
-    const createdProduct = await productRepositoriesSQL.create(product);
+    const createdProduct = await productRepositoriesSQL.createProduct(product);
     return createdProduct;
   } catch (error) {
     throw error;
@@ -31,7 +31,7 @@ export const create = async (product: createProduct) => {
 
 export const update = async (id: bigint, product: updateProduct) => {
   try {
-    await productRepositoriesSQL.update(id, product);
+    await productRepositoriesSQL.updateProductById(id, product);
   } catch (error) {
     throw error;
   }
@@ -39,7 +39,7 @@ export const update = async (id: bigint, product: updateProduct) => {
 
 export const deleteById = async (id: bigint) => {
   try {
-    await productRepositoriesSQL.deleteById(id);
+    await productRepositoriesSQL.deleteProductById(id);
   } catch (error) {
     throw error;
   }
@@ -48,8 +48,6 @@ export const deleteById = async (id: bigint) => {
 export const sync = async () => {
     try {
       const allProducts = await fetchAllProducts();
-      // Process the retrieved products as needed
-      // ...
       return allProducts;
     } catch (error) {
       throw error;

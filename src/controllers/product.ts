@@ -6,11 +6,13 @@ import Boom from "@hapi/boom";
 
 export const getAll = async (request: hapi.Request, response: hapi.ResponseToolkit) => {
     try {
-      const products = await productUsecase.getAll();
-      return response.response(responseBuilder(action.other, "products", products)).code(200);
+        const page: number = request.query.page <= '0' ? 1 : +request.query.page;
+        const per_page: number = request.query.page <= '0' ? 10 : +request.query.page;
+        const products = await productUsecase.getAll(page, per_page);
+        return response.response(responseBuilder(action.other, "products", products)).code(200);
     } catch (error: any) {
-      request.log("error", error);
-      return Boom.badImplementation(JSON.stringify(error));
+        request.log("error", error);
+        return Boom.badImplementation(JSON.stringify(error));
     }
 };
   
@@ -20,9 +22,9 @@ try {
     const product = await productUsecase.getById(id);
     
     if (product) {
-    return response.response(responseBuilder(action.other, "product", product)).code(200);
+        return response.response(responseBuilder(action.other, "product", product)).code(200);
     } else {
-    return Boom.notFound('Product not found');
+        return Boom.notFound('Product not found');
     }
 } catch (error: any) {
     request.log("error", error);

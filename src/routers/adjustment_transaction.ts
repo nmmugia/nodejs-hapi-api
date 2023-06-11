@@ -1,26 +1,26 @@
-import adjustmentTransactionController from "../controllers/adjustmentTransaction"
+import {getAll, getBySku, create, update, deleteByID} from "../controllers/adjustment_transaction"
 
 const product: any[] = [
     {
         method: 'GET',
         path: '/adjustment-transaction',
-        handler:  adjustmentTransactionController.getAll
+        handler:  getAll
     },{
         method: 'GET',
-        path: '/adjustment-transaction',
-        handler:  adjustmentTransactionController.getBySku
+        path: '/adjustment-transaction/{sku}',
+        handler:  getBySku
     },{
         method: 'POST',
         path: '/adjustment-transaction',
-        handler:  adjustmentTransactionController.create
+        handler:  create
     },{
         method: 'PUT',
         path: '/adjustment-transaction',
-        handler:  adjustmentTransactionController.update
+        handler:  update
     },{
         method: 'DELETE',
         path: '/adjustment-transaction',
-        handler:  adjustmentTransactionController.delete
+        handler:  deleteByID
     }
 ];
 
