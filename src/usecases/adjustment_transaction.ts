@@ -1,4 +1,4 @@
-import { adjustmentTransaction, createAdjustmentTransaction, updateAdjustmentTransaction } from '../models/adjustment_transaction';
+import { adjustmentTransaction, createAdjustmentTransactionForm, updateAdjustmentTransactionForm } from '../models/adjustment_transaction';
 import adjustmentTransactionRepositorySQL from '../repositories/sql/adjustment_transaction';
 
 // Get all adjustment transactions
@@ -20,7 +20,7 @@ const getBySku = async (sku: string): Promise<adjustmentTransaction | null> => {
 }
 
 // Create an adjustment transaction
-const create = async (data: createAdjustmentTransaction): Promise<adjustmentTransaction> => {
+const create = async (data: createAdjustmentTransactionForm): Promise<adjustmentTransaction> => {
   try {
     return await adjustmentTransactionRepositorySQL.createAdjustmentTransaction(data);
   } catch (error) {
@@ -29,7 +29,7 @@ const create = async (data: createAdjustmentTransaction): Promise<adjustmentTran
 }
 
 // Update an adjustment transaction
-const update = async (id: bigint, data: updateAdjustmentTransaction): Promise<void> => {
+const update = async (id: bigint, data: updateAdjustmentTransactionForm): Promise<void> => {
   try {
     await adjustmentTransactionRepositorySQL.updateAdjustmentTransaction(id, data);
   } catch (error) {

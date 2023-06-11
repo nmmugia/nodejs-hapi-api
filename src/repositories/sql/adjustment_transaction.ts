@@ -1,12 +1,11 @@
-import { Pool, QueryConfig } from 'pg';
-import { adjustmentTransaction, createAdjustmentTransaction, updateAdjustmentTransaction } from '../../models/adjustment_transaction';
+import { adjustmentTransaction, createAdjustmentTransactionForm, updateAdjustmentTransactionForm } from '../../models/adjustment_transaction';
 import {pool} from './connection'
 
 // Get all adjustment transaction
 export async function getAllAdjustmentTransaction(page: number, per_page: number): Promise<adjustmentTransaction[]> {
     try {
-      const query = 'SELECT * FROM adjustment_transaction LIMIT $1 OFFSET $2';
-      const result = await pool.query(query, [per_page, (page-1)*per_page]);
+      const query = `SELECT * FROM adjustment_transaction LIMIT ${per_page} OFFSET ${(page-1)*per_page}`;
+      const result = await pool.query(query);
       return result.rows as adjustmentTransaction[];
     } catch (error) {
       throw error;
@@ -26,7 +25,7 @@ export async function getAllAdjustmentTransaction(page: number, per_page: number
   }
   
 
-export async function createAdjustmentTransaction(data: createAdjustmentTransaction): Promise<adjustmentTransaction> {
+export async function createAdjustmentTransaction(data: createAdjustmentTransactionForm): Promise<adjustmentTransaction> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -74,7 +73,7 @@ export async function createAdjustmentTransaction(data: createAdjustmentTransact
   }
 }
 
-export async function updateAdjustmentTransaction(id: bigint, data: updateAdjustmentTransaction): Promise<void> {
+export async function updateAdjustmentTransaction(id: bigint, data: updateAdjustmentTransactionForm): Promise<void> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

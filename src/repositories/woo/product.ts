@@ -1,8 +1,5 @@
 import axios from 'axios';
-import dotenv from 'dotenv'
 
-
-dotenv.config();
 async function fetchProducts(page: number): Promise<any> {
   const url = `https://codetesting.jubelio.store/wp-json/wc/v3/products?per_page=50&page=${page}&orderby=date`;
   const username = process.env.WOO_CLIENT_KEY;

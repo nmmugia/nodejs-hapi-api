@@ -14,7 +14,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('sku').notNullable();
     table.string('name').notNullable();
     table.decimal('price');
-    table.text('image');
+    table.jsonb('image');
     table.text('description');
     addAuthorColumns(table);
   });

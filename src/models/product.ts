@@ -1,9 +1,9 @@
 export interface product {
-    id: bigint;
+    id: number;
     sku: string;
     name: string;
-    price: number;
-    image: string;
+    price: string;
+    image: any;
     description: string;
     created_at: Date;
     created_by: string;
@@ -11,7 +11,7 @@ export interface product {
     updated_by: string;
 }
 
-export interface createProduct {
+export interface createProductForm {
     sku: string;
     name: string;
     price: number;
@@ -20,7 +20,7 @@ export interface createProduct {
 }
 
 
-export interface updateProduct {
+export interface updateProductForm {
     sku?: string;
     name?: string;
     price?: number;

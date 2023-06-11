@@ -14,9 +14,15 @@ services:
   db:
     image: postgres:13
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=jubelio
+      - PORT=4000
+      - JWT_SECRET="tifo"
+      - PG_USERNAME="postgres"
+      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_HOST="localhost"
+      - PG_PORT="5432"
+      - PG_DB="test"
+      - WOO_CLIENT_KEY=${WOO_CLIENT_KEY}
+      - WOO_CLIENT_SECRET=${WOO_CLIENT_SECRET}
     volumes:
       - ./init-scripts:/docker-entrypoint-initdb.d
   redis:

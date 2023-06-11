@@ -1,5 +1,5 @@
 export interface adjustmentTransaction {
-    id: bigint;
+    id: number;
     sku: string;
     qty: number;
     amount: number;
@@ -10,14 +10,14 @@ export interface adjustmentTransaction {
     updated_by: string;
 }
 
-export interface createAdjustmentTransaction {
+export interface createAdjustmentTransactionForm {
     sku: string;
     qty: number;
     amount: number;
     description: string;
 }
 
-export interface updateAdjustmentTransaction {
+export interface updateAdjustmentTransactionForm {
     sku?: string;
     qty?: number;
     amount?: number;

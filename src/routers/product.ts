@@ -15,11 +15,11 @@ const product: any[] = [
         handler:  create
     },{
         method: 'PUT',
-        path: '/products',
+        path: '/products/{id}',
         handler:  update
     },{
         method: 'DELETE',
-        path: '/products',
+        path: '/products/{id}',
         handler:  deleteById
     },{
         method: 'POST',

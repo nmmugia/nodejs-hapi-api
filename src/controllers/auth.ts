@@ -1,8 +1,5 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import hapi from '@hapi/hapi';
-
-dotenv.config();
 
 interface LoginPayload {
   username: string;
