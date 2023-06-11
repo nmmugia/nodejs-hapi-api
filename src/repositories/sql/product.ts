@@ -1,5 +1,5 @@
 import { Pool, QueryResult } from 'pg';
-import { product, createProduct, updateProduct } from '../models/product';
+import { product, createProduct, updateProduct } from '../../models/product';
 
 // Create a connection pool
 const pool = new Pool({
@@ -47,19 +47,58 @@ export async function createProduct(productData: createProduct): Promise<bigint>
 }
 
 // Update a product
-export async function updateProduct(id: bigint, productData: updateProduct): Promise<void> {
+export async function updateProductById(
+  id: bigint,
+  data: updateProduct
+): Promise<void> {
+  const client = await pool.connect();
   try {
-    const query = `
-      UPDATE product
-      SET sku = $1, name = $2, price = $3, image = $4, description = $5
-      WHERE id = $6
-    `;
-    const values = [productData.sku, productData.name, productData.price, productData.image, productData.description, id];
-    await pool.query(query, values);
-  } catch (error) {
-    throw error;
+    const updateFields: string[] = [];
+    const values: any[] = [];
+
+    if (data.sku !== undefined) {
+      updateFields.push('sku');
+      values.push(data.sku);
+    }
+
+    if (data.name !== undefined) {
+      updateFields.push('name');
+      values.push(data.name);
+    }
+
+    if (data.price !== undefined) {
+      updateFields.push('price');
+      values.push(data.price);
+    }
+
+    if (data.description !== undefined) {
+      updateFields.push('description');
+      values.push(data.description);
+    }
+
+    if (updateFields.length === 0) {
+      throw new Error(`No fields provided to update.`);
+    }
+
+    const setFields = updateFields.map((field, index) => `${field} = $${index + 1}`).join(', ');
+
+    const query = {
+      text: `UPDATE product
+             SET ${setFields}, updated_at = $${new Date()}
+             WHERE id = $${id}`,
+      values: values
+    };
+
+    const result = await client.query(query);
+
+    if (result.rowCount === 0) {
+      throw new Error(`Adjustment transaction with ID ${id} not found.`);
+    }
+  } finally {
+    client.release();
   }
 }
+
 
 // Delete a product by ID
 export async function deleteProductById(id: bigint): Promise<void> {
@@ -69,4 +108,12 @@ export async function deleteProductById(id: bigint): Promise<void> {
   } catch (error) {
     throw error;
   }
+}
+
+export default {
+  getAllProducts,
+  getProductById,
+  createProduct,
+  updateProductById,
+  deleteProductById
 }

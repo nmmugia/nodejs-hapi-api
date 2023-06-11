@@ -1,5 +1,5 @@
 import { Pool, QueryConfig } from 'pg';
-import { adjustmentTransaction, createAdjustmentTransaction, updateAdjustmentTransaction } from '../models/adjustment_transaction';
+import { adjustmentTransaction, createAdjustmentTransaction, updateAdjustmentTransaction } from '../../models/adjustment_transaction';
 
 const pool = new Pool();
 
