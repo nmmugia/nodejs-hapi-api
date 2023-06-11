@@ -1,10 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 import { product, createProduct, updateProduct } from '../../models/product';
-
-// Create a connection pool
-const pool = new Pool({
-  connectionString: 'your-postgres-connection-string',
-});
+import {pool} from './connection'
 
 // Get all products
 export async function getAllProducts(): Promise<product[]> {

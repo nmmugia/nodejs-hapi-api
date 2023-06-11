@@ -1,8 +1,6 @@
 import { Pool, QueryConfig } from 'pg';
 import { adjustmentTransaction, createAdjustmentTransaction, updateAdjustmentTransaction } from '../../models/adjustment_transaction';
-
-const pool = new Pool();
-
+import {pool} from './connection'
 
 // Get all adjustment transaction
 export async function getAllAdjustmentTransaction(): Promise<adjustmentTransaction[]> {
