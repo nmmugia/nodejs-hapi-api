@@ -1,26 +1,27 @@
 import { adjustmentTransaction, createAdjustmentTransactionForm, updateAdjustmentTransactionForm } from '../../models/adjustment_transaction';
-import {pool} from './connection'
+import {pool} from './connection';
+import Boom from '@hapi/boom';
 
 // Get all adjustment transaction
 export async function getAllAdjustmentTransaction(page: number, per_page: number): Promise<adjustmentTransaction[]> {
     try {
-      const query = `SELECT * FROM adjustment_transaction LIMIT ${per_page} OFFSET ${(page-1)*per_page} WHERE deleted_at ISNULL`;
+      const query = `SELECT * FROM adjustment_transaction WHERE deleted_at ISNULL LIMIT ${per_page} OFFSET ${(page-1)*per_page}`;
       const result = await pool.query(query);
       return result.rows as adjustmentTransaction[];
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw Boom.internal(error);
     }
   }
   
   // Get adjustment transaction by ID
   export async function getAdjustmentTransactionById(id: number): Promise<adjustmentTransaction | null> {
     try {
-      const query = 'SELECT * FROM adjustment_transaction WHERE id = $1 WHERE deleted_at ISNULL';
+      const query = 'SELECT * FROM adjustment_transaction WHERE id = $1 AND deleted_at ISNULL';
       const results = await pool.query(query, [id]);
       const result = results.rows[0] as adjustmentTransaction;
       return result || null;
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw Boom.internal(error);
     }
   }
   
@@ -37,7 +38,7 @@ export async function createAdjustmentTransaction(data: createAdjustmentTransact
       [data.sku]
     );
     if (product.rowCount <= 0) {
-      throw new Error("product is not found")
+      throw Boom.notFound("product is not found")
     }
     const price = product.rows[0].price
     // Create adjustment transaction
@@ -64,7 +65,9 @@ export async function createAdjustmentTransaction(data: createAdjustmentTransact
     const previousQty = productStock.length > 0 ? +productStock[0].last_qty : 0;
     const lastQty = previousQty + data.qty;
     const qtyChanges = data.qty;
-
+    if (lastQty < 0) {
+      throw Boom.badRequest("quantity after the transaction is less than 0, please recheck the qty");
+    }
     // Create product stock entry
     await client.query(
       `INSERT INTO product_stock (product_id, transaction_id, description, previous_product_stock, previous_qty, last_qty, qty_changes)
@@ -75,9 +78,9 @@ export async function createAdjustmentTransaction(data: createAdjustmentTransact
     await client.query('COMMIT');
 
     return adjustmentTransactionId;
-  } catch (error) {
+  } catch (error: any) {
     await client.query('ROLLBACK');
-    throw error;
+    throw Boom.internal(error);
   } finally {
     client.release();
   }
@@ -96,7 +99,7 @@ export async function updateAdjustmentTransaction(id: bigint, data: updateAdjust
       [data.sku]
     );
     if (product.rowCount <= 0) {
-      throw new Error("product is not found")
+      throw Boom.notFound("product is not found")
     }
     const price = product.rows[0].price
     // Get the existing adjustment transaction
@@ -134,6 +137,9 @@ export async function updateAdjustmentTransaction(id: bigint, data: updateAdjust
     const qtyChanges = data.qty !== undefined && existingAdjustmentTransaction.qty !== undefined ?
     data.qty - existingAdjustmentTransaction.qty: 0;
     const lastQty = previousQty + qtyChanges;
+    if (lastQty < 0) {
+      throw Boom.badRequest("quantity after the transaction is less than 0, please recheck the qty");
+    }
 
     const desc = `Update transaction operation(correction),
     details:${data.description}`;
@@ -146,10 +152,10 @@ export async function updateAdjustmentTransaction(id: bigint, data: updateAdjust
     );
 
     await client.query('COMMIT');
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
     await client.query('ROLLBACK');
-    throw error;
+    throw Boom.internal(error);
   } finally {
     client.release();
   }
@@ -188,7 +194,9 @@ export async function deleteAdjustmentTransactionById(id: bigint): Promise<void>
     const previousQty = productStock.length > 0 ? productStock[0].qty : 0;
     const lastQty = previousQty - adjustmentTransaction.qty;
     const qtyChanges = -adjustmentTransaction.qty;
-
+    if (lastQty < 0) {
+      throw Boom.badRequest("quantity after the transaction is less than 0, please recheck the qty");
+    }
     // Create product stock entry
     await client.query(
       `INSERT INTO product_stock (product_id, transaction_id, description, previous_product_stock, previous_qty, last_qty, qty_changes)
@@ -197,10 +205,10 @@ export async function deleteAdjustmentTransactionById(id: bigint): Promise<void>
     );
 
     await client.query('COMMIT');
-  } catch (error) {
+  } catch (error: any) {
     await client.query('ROLLBACK');
     console.log(error);
-    throw error;
+    throw Boom.internal(error);
   } finally {
     client.release();
   }

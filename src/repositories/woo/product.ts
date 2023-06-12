@@ -12,7 +12,7 @@ async function fetchProducts(page: number): Promise<any> {
         },
       });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error fetching products from page ${page}:`, error);
     return [];
   }

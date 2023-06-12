@@ -1,13 +1,14 @@
 import { createProductForm, updateProductForm } from '../models/product';
 import productRepositoriesSQL from '../repositories/sql/product';
 import {fetchAllProducts} from '../repositories/woo/product';
+import Boom from '@hapi/boom';
 
 export const getAll = async (page: number, per_page: number) => {
   try {
     const products = await productRepositoriesSQL.getAllProducts(page, per_page);
     return products;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 };
 
@@ -15,8 +16,8 @@ export const getById = async (id: bigint) => {
   try {
     const product = await productRepositoriesSQL.getProductById(id);
     return product;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 };
 
@@ -24,24 +25,24 @@ export const create = async (product: createProductForm) => {
   try {
     const createdProduct = await productRepositoriesSQL.createProduct(product);
     return createdProduct;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 };
 
 export const update = async (id: bigint, product: updateProductForm) => {
   try {
     await productRepositoriesSQL.updateProductById(id, product);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 };
 
 export const deleteById = async (id: bigint) => {
   try {
     await productRepositoriesSQL.deleteProductById(id);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 };
 
@@ -62,8 +63,8 @@ export const sync = async () => {
     }
 
     console.log('Sync completed successfully.');
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 };
 

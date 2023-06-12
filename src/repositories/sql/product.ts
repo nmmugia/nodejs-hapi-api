@@ -1,6 +1,7 @@
 import { Pool, QueryResult } from 'pg';
 import { product, createProductForm, updateProductForm } from '../../models/product';
-import {pool} from './connection'
+import {pool} from './connection';
+import Boom from '@hapi/boom';
 
 // Get all products
 export async function getAllProducts(page: number, per_page: number): Promise<product[]> {
@@ -24,8 +25,8 @@ export async function getAllProducts(page: number, per_page: number): Promise<pr
     LIMIT ${per_page} OFFSET ${(page-1)*per_page}`;
     const result = await pool.query(query);
     return result.rows as product[];
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -51,8 +52,8 @@ export async function getProductById(id: bigint): Promise<product | null> {
     const result = await pool.query(query);
     const product = result.rows[0] as product;
     return product || null;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -61,18 +62,18 @@ export async function createProduct(productData: createProductForm): Promise<big
   try {
     const query = `
       INSERT INTO product (sku, name, price, image, description)
-      VALUES ($1, $2, $3, $4, $5)
+      VALUES ($1, $2, $3, $4::jsonb, $5)
       RETURNING id
     `;
 
-    const values = [productData.sku, productData.name, productData.price, productData.image, productData.description];
+    const values = [productData.sku, productData.name, productData.price, JSON.stringify([{src: productData.image}]), productData.description];
 
     const result = await pool.query(query, values);
     const id = result.rows[0].id as bigint;
     return id;
 
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -101,17 +102,24 @@ export async function updateProductById(
       values.push(data.price);
     }
 
+    if (data.image !== undefined) {
+      updateFields.push('image');
+      values.push([{src: data.image}]);
+    }
+
     if (data.description !== undefined) {
       updateFields.push('description');
       values.push(data.description);
     }
 
     if (updateFields.length === 0) {
-      throw new Error(`No fields provided to update.`);
+      throw Boom.badRequest(`No fields provided to update.`);
     }
 
     const setFields = updateFields.map(
-      (field, index) => `${field} = $${index+1}`
+      (field, index) => {
+        return typeof field !== "object" ? `${field} = $${index+1}`: `${field} = '${values[index]}'::jsonb`
+      }
     ).join(', ');
 
     const query = {
@@ -124,7 +132,7 @@ export async function updateProductById(
     const result = await client.query(query);
 
     if (result.rowCount === 0) {
-      throw new Error(`Adjustment transaction with ID ${id} not found.`);
+      throw Boom.notFound(`Adjustment transaction with ID ${id} not found.`);
     }
   } finally {
     client.release();
@@ -137,8 +145,8 @@ export async function deleteProductById(id: bigint): Promise<void> {
   try {
     const query = `DELETE FROM product WHERE id = ${id}`;
     await pool.query(query);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -176,9 +184,9 @@ async function batchInsertProducts(products: any[]): Promise<void> {
     }
 
     await client.query('COMMIT');
-  } catch (error) {
+  } catch (error: any) {
     await client.query('ROLLBACK');
-    throw error;
+    throw Boom.internal(error);
   } finally {
     client.release();
   }

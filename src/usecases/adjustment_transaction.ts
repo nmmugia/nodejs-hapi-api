@@ -1,12 +1,13 @@
 import { adjustmentTransaction, createAdjustmentTransactionForm, updateAdjustmentTransactionForm } from '../models/adjustment_transaction';
 import adjustmentTransactionRepositorySQL from '../repositories/sql/adjustment_transaction';
+import Boom from '@hapi/boom';
 
 // Get all adjustment transactions
 const getAll = async (page: number, per_page: number): Promise<adjustmentTransaction[]> => {
   try {
     return await adjustmentTransactionRepositorySQL.getAllAdjustmentTransaction(page, per_page);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -14,8 +15,8 @@ const getAll = async (page: number, per_page: number): Promise<adjustmentTransac
 const getById = async (Id: number): Promise<adjustmentTransaction | null> => {
   try {
     return await adjustmentTransactionRepositorySQL.getAdjustmentTransactionById(Id);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -23,8 +24,8 @@ const getById = async (Id: number): Promise<adjustmentTransaction | null> => {
 const create = async (data: createAdjustmentTransactionForm): Promise<adjustmentTransaction> => {
   try {
     return await adjustmentTransactionRepositorySQL.createAdjustmentTransaction(data);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -32,8 +33,8 @@ const create = async (data: createAdjustmentTransactionForm): Promise<adjustment
 const update = async (id: bigint, data: updateAdjustmentTransactionForm): Promise<void> => {
   try {
     await adjustmentTransactionRepositorySQL.updateAdjustmentTransaction(id, data);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 
@@ -41,8 +42,8 @@ const update = async (id: bigint, data: updateAdjustmentTransactionForm): Promis
 const deleteById = async (id: bigint): Promise<void> => {
   try {
     await adjustmentTransactionRepositorySQL.deleteAdjustmentTransactionById(id);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw Boom.internal(error);
   }
 }
 

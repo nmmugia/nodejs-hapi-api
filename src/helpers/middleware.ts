@@ -31,7 +31,7 @@ const middlewareFunction = async (request: Hapi.Request, h: Hapi.ResponseToolkit
   
       // Pass control to the next handler
       return h.continue;
-    } catch (error) {
+    } catch (error: any) {
       throw Boom.unauthorized('Invalid token');
     }
   };

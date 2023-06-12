@@ -56,7 +56,7 @@ export const deleteByID = async (request: hapi.Request, response: hapi.ResponseT
   try {
     const id: bigint = BigInt(request.params.id);
     await adjustmentTransactionUsecase.deleteById(id);
-    return response.response(responseBuilder(action.get, "adjustment transactions")).code(200);
+    return response.response(responseBuilder(action.delete, "adjustment transactions")).code(200);
   } catch (error: any) {
     request.log('error', error);
     return response.response({ message: 'An error occurred' }).code(500);

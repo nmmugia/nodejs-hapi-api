@@ -40,8 +40,8 @@ export const login = async (request: hapi.Request, h: hapi.ResponseToolkit) => {
     await redisClient.set(token, username, 'EX', TOKEN_EXPIRATION_TIME);
 
     return token;
-  } catch (error) {
-    throw new Error('Login failed');
+  } catch (error: any) {
+    throw Boom.unauthorized('Login failed');
   }
 };
 
@@ -66,7 +66,7 @@ export const signup = async (request: hapi.Request, h: hapi.ResponseToolkit) => 
     await redisClient.set(payload.username, userData);
 
     return token;
-  } catch (error) {
+  } catch (error: any) {
     throw  Boom.internal('Signup failed');
   }
 };
