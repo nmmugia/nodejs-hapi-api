@@ -1,30 +1,37 @@
 import {getAll, getById, create, update, deleteById, sync} from "../controllers/product"
+import {middlewareOptions} from '../helpers/middleware'
 
 const product: any[] = [
     {
         method: 'GET',
         path: '/products',
-        handler:  getAll
+        handler:  getAll,
+        options: middlewareOptions
     },{
         method: 'GET',
         path: '/products/{id}',
-        handler:  getById
+        handler:  getById,
+        options: middlewareOptions
     },{
         method: 'POST',
         path: '/products',
-        handler:  create
+        handler:  create,
+        options: middlewareOptions
     },{
         method: 'PUT',
         path: '/products/{id}',
-        handler:  update
+        handler:  update,
+        options: middlewareOptions
     },{
         method: 'DELETE',
         path: '/products/{id}',
-        handler:  deleteById
+        handler:  deleteById,
+        options: middlewareOptions
     },{
         method: 'POST',
         path: '/products/sync',
-        handler:  sync
+        handler:  sync,
+        options: middlewareOptions
     }
 ];
 

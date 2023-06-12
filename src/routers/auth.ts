@@ -1,10 +1,14 @@
-import authController from "../controllers/auth"
+import {login, signup} from "../controllers/auth"
 
 const auth: any[] = [
     {
         method: 'POST',
         path: '/login',
-        handler:  authController
+        handler:  login
+    },{
+        method: 'POST',
+        path: '/signup',
+        handler:  signup
     },
 ];
 

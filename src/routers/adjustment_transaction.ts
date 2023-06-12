@@ -1,26 +1,32 @@
 import {getAll, getById, create, update, deleteByID} from "../controllers/adjustment_transaction"
+import {middlewareOptions} from '../helpers/middleware'
 
 const product: any[] = [
     {
         method: 'GET',
         path: '/adjustment-transactions',
-        handler:  getAll
+        handler:  getAll,
+        options: middlewareOptions
     },{
         method: 'GET',
         path: '/adjustment-transactions/{id}',
-        handler:  getById
+        handler:  getById,
+        options: middlewareOptions
     },{
         method: 'POST',
         path: '/adjustment-transactions',
-        handler:  create
+        handler:  create,
+        options: middlewareOptions
     },{
         method: 'PUT',
         path: '/adjustment-transactions/{id}',
-        handler:  update
+        handler:  update,
+        options: middlewareOptions
     },{
         method: 'DELETE',
         path: '/adjustment-transactions/{id}',
-        handler:  deleteByID
+        handler:  deleteByID,
+        options: middlewareOptions
     }
 ];
 
