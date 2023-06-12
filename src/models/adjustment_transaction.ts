@@ -13,13 +13,11 @@ export interface adjustmentTransaction {
 export interface createAdjustmentTransactionForm {
     sku: string;
     qty: number;
-    amount: number;
     description: string;
 }
 
 export interface updateAdjustmentTransactionForm {
     sku?: string;
     qty?: number;
-    amount?: number;
     description?: string;
 }

@@ -5,7 +5,23 @@ import {pool} from './connection'
 // Get all products
 export async function getAllProducts(page: number, per_page: number): Promise<product[]> {
   try {
-    const query = `SELECT * FROM product LIMIT ${per_page} OFFSET ${(page-1)*per_page}`;
+    const query = `
+    SELECT
+    p.*,
+    COALESCE(ps.last_qty, 0) AS stock
+    FROM
+        product p
+    LEFT JOIN (
+        SELECT
+            product_id,
+            last_qty
+        FROM
+            product_stock
+        ORDER BY
+            created_at DESC
+        LIMIT 1
+    ) ps ON ps.product_id = p.id
+    LIMIT ${per_page} OFFSET ${(page-1)*per_page}`;
     const result = await pool.query(query);
     return result.rows as product[];
   } catch (error) {
@@ -16,7 +32,22 @@ export async function getAllProducts(page: number, per_page: number): Promise<pr
 // Get product by ID
 export async function getProductById(id: bigint): Promise<product | null> {
   try {
-    const query = `SELECT * FROM product WHERE id = ${id}`;
+    const query = `SELECT
+    p.*,
+    COALESCE(ps.last_qty, 0) AS stock
+    FROM
+        product p
+    LEFT JOIN (
+        SELECT
+            product_id,
+            last_qty
+        FROM
+            product_stock
+        ORDER BY
+            created_at DESC
+        LIMIT 1
+    ) ps ON ps.product_id = p.id
+    WHERE id = ${id}`;
     const result = await pool.query(query);
     const product = result.rows[0] as product;
     return product || null;

@@ -15,11 +15,11 @@ const product: any[] = [
         handler:  create
     },{
         method: 'PUT',
-        path: '/adjustment-transactions',
+        path: '/adjustment-transactions/{id}',
         handler:  update
     },{
         method: 'DELETE',
-        path: '/adjustment-transactions',
+        path: '/adjustment-transactions/{id}',
         handler:  deleteByID
     }
 ];

@@ -4,7 +4,7 @@ import {pool} from './connection'
 // Get all adjustment transaction
 export async function getAllAdjustmentTransaction(page: number, per_page: number): Promise<adjustmentTransaction[]> {
     try {
-      const query = `SELECT * FROM adjustment_transaction LIMIT ${per_page} OFFSET ${(page-1)*per_page}`;
+      const query = `SELECT * FROM adjustment_transaction LIMIT ${per_page} OFFSET ${(page-1)*per_page} WHERE deleted_at ISNULL`;
       const result = await pool.query(query);
       return result.rows as adjustmentTransaction[];
     } catch (error) {
@@ -15,7 +15,7 @@ export async function getAllAdjustmentTransaction(page: number, per_page: number
   // Get adjustment transaction by ID
   export async function getAdjustmentTransactionById(id: number): Promise<adjustmentTransaction | null> {
     try {
-      const query = 'SELECT * FROM adjustment_transaction WHERE id = $1';
+      const query = 'SELECT * FROM adjustment_transaction WHERE id = $1 WHERE deleted_at ISNULL';
       const results = await pool.query(query, [id]);
       const result = results.rows[0] as adjustmentTransaction;
       return result || null;
@@ -29,18 +29,28 @@ export async function createAdjustmentTransaction(data: createAdjustmentTransact
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-
+    const product = await client.query(
+      `SELECT sku, price
+      FROM product
+      WHERE
+      sku = $1`,
+      [data.sku]
+    );
+    if (product.rowCount <= 0) {
+      throw new Error("product is not found")
+    }
+    const price = product.rows[0].price
     // Create adjustment transaction
     const { rows: [adjustmentTransactionId] } = await client.query<adjustmentTransaction>(
       `INSERT INTO adjustment_transaction (sku, qty, amount, description)
        VALUES ($1, $2, $3, $4)
        RETURNING id, sku, qty, amount, description`,
-      [data.sku, data.qty, data.amount, data.description]
+      [data.sku, data.qty, price*data.qty, data.description]
     );
 
     // Get product stock based on SKU
     const { rows: productStock } = await client.query(
-      `SELECT id, qty
+      `SELECT id, last_qty
        FROM product_stock
        WHERE product_id = (SELECT id FROM product WHERE sku = $1)
        ORDER BY id DESC
@@ -51,7 +61,7 @@ export async function createAdjustmentTransaction(data: createAdjustmentTransact
 
     // Calculate new stock quantity
     const previousProductStock = productStock.length > 0 ? productStock[0].id : null;
-    const previousQty = productStock.length > 0 ? productStock[0].qty : 0;
+    const previousQty = productStock.length > 0 ? +productStock[0].last_qty : 0;
     const lastQty = previousQty + data.qty;
     const qtyChanges = data.qty;
 
@@ -78,6 +88,17 @@ export async function updateAdjustmentTransaction(id: bigint, data: updateAdjust
   try {
     await client.query('BEGIN');
 
+    const product = await client.query(
+      `SELECT sku, price
+      FROM product
+      WHERE
+      sku = $1`,
+      [data.sku]
+    );
+    if (product.rowCount <= 0) {
+      throw new Error("product is not found")
+    }
+    const price = product.rows[0].price
     // Get the existing adjustment transaction
     const { rows: [existingAdjustmentTransaction] } = await client.query<adjustmentTransaction>(
       `SELECT sku, qty, description
@@ -93,41 +114,47 @@ export async function updateAdjustmentTransaction(id: bigint, data: updateAdjust
       `UPDATE adjustment_transaction
        SET sku = $1, qty = $2, amount = $3, description = $4
        WHERE id = $5`,
-      [updatedAdjustmentTransaction.sku, updatedAdjustmentTransaction.qty, updatedAdjustmentTransaction.amount, updatedAdjustmentTransaction.description, id]
+      [updatedAdjustmentTransaction.sku, updatedAdjustmentTransaction.qty, updatedAdjustmentTransaction.qty*price, updatedAdjustmentTransaction.description, id]
     );
 
     // Get product stock based on SKU
     const { rows: productStock } = await client.query(
-      `SELECT id, qty
+      `SELECT id, last_qty as qty
        FROM product_stock
        WHERE product_id = (SELECT id FROM product WHERE sku = $1)
        ORDER BY id DESC
        LIMIT 1
        FOR UPDATE`,
-      [existingAdjustmentTransaction.sku]
+      [data.sku]
     );
 
     // Calculate new stock quantity
     const previousProductStock = productStock.length > 0 ? productStock[0].id : null;
     const previousQty = productStock.length > 0 ? productStock[0].qty : 0;
-    const lastQty = previousQty - existingAdjustmentTransaction.qty + updatedAdjustmentTransaction.qty;
-    const qtyChanges = updatedAdjustmentTransaction.qty - existingAdjustmentTransaction.qty;
+    const qtyChanges = data.qty !== undefined && existingAdjustmentTransaction.qty !== undefined ?
+    data.qty - existingAdjustmentTransaction.qty: 0;
+    const lastQty = previousQty + qtyChanges;
+
+    const desc = `Update transaction operation(correction),
+    details:${data.description}`;
 
     // Create product stock entry
     await client.query(
       `INSERT INTO product_stock (product_id, transaction_id, description, previous_product_stock, previous_qty, last_qty, qty_changes)
        VALUES ((SELECT id FROM product WHERE sku = $1), $2, $3, $4, $5, $6, $7)`,
-      [existingAdjustmentTransaction.sku, id, updatedAdjustmentTransaction.description, previousProductStock, previousQty, lastQty, qtyChanges]
+      [data.sku, id, desc, previousProductStock, previousQty, lastQty, qtyChanges]
     );
 
     await client.query('COMMIT');
   } catch (error) {
+    console.log(error);
     await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();
   }
 }
+
 
 export async function deleteAdjustmentTransactionById(id: bigint): Promise<void> {
   const client = await pool.connect();
@@ -138,17 +165,16 @@ export async function deleteAdjustmentTransactionById(id: bigint): Promise<void>
     const { rows: [adjustmentTransaction] } = await client.query<adjustmentTransaction>(
       `SELECT sku, qty, description
        FROM adjustment_transaction
-       WHERE id = $1
-       FOR UPDATE`,
+       WHERE id = $1`,
       [id]
     );
 
     // Delete the adjustment transaction
-    await client.query('DELETE FROM adjustment_transaction WHERE id = $1', [id]);
+    await client.query('UPDATE adjustment_transaction set deleted_by=CURRENT_USER, deleted_at=NOW() WHERE id = $1 ', [id]);
 
     // Get product stock based on SKU
     const { rows: productStock } = await client.query(
-      `SELECT id, qty
+      `SELECT id, last_qty as qty
        FROM product_stock
        WHERE product_id = (SELECT id FROM product WHERE sku = $1)
        ORDER BY id DESC
@@ -173,6 +199,7 @@ export async function deleteAdjustmentTransactionById(id: bigint): Promise<void>
     await client.query('COMMIT');
   } catch (error) {
     await client.query('ROLLBACK');
+    console.log(error);
     throw error;
   } finally {
     client.release();
