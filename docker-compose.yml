@@ -1,29 +1,56 @@
 version: '3'
 services:
+  db:
+    image: postgres:12.3-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+    networks:
+      - api-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    networks:
+      - api-net
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 4000:4000
     environment:
-      - PG_HOST=db
+      - PORT=4000
       - REDIS_HOST=redis
+      - JWT_SECRET=tifo
+      - POSTGRES_USERNAME=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - WOO_CLIENT_KEY=ck_1cbb2c1902d56b629cd9a555cc032c4b478b26ce
+      - WOO_CLIENT_SECRET=cs_7be10f0328c5b1d6a1a3077165b226af71d8b9dc
     depends_on:
       - db
       - redis
-    command: bash -c "yarn tsc && yarn migrate && yarn serve"
-  db:
-    image: postgres:13
-    environment:
-      - PORT=4000
-      - JWT_SECRET="tifo"
-      - PG_USERNAME="postgres"
-      - PG_PASSWORD=${PG_PASSWORD}
-      - PG_HOST="localhost"
-      - PG_PORT="5432"
-      - PG_DB="test"
-      - WOO_CLIENT_KEY=${WOO_CLIENT_KEY}
-      - WOO_CLIENT_SECRET=${WOO_CLIENT_SECRET}
+    command: bash -c "yarn install && yarn tsc && yarn migrate && yarn serve"
     volumes:
-      - ./init-scripts:/docker-entrypoint-initdb.d
-  redis:
-    image: redis:6
+      - .:/app
+    networks:
+      - api-net
+
+networks:
+  api-net:
+
+volumes:
+  db_data:
