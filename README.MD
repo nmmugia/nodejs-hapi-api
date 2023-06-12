@@ -4,6 +4,8 @@ This repository contains the implementation for simple e-commerce API based on [
 
 ## ERD
 ![erd](https://github.com/nmmugia/nodejs-hapi-api/blob/master/public/erd.png?raw=true)
+### note on ERD
+So while the product and adjustment_transaction are quite straightforward, but on the product_stock, we use irreversible historical-based data, means that every stock move must be recorded and had to be sequential (old data should not be updated directly since it tampered with the data consistency)
 
 # Structure
 ![structure](https://github.com/nmmugia/nodejs-hapi-api/blob/master/public/structure.png?raw=true)
